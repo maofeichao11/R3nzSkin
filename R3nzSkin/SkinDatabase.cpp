@@ -55,6 +55,11 @@ void SkinDatabase::load() noexcept
 		}
 	}
 
+	auto player_{ cheatManager.memory->localPlayer };
+	std::string name_ = player_->get_character_data_stack()->base_skin.model.str;
+	const auto name{ fnv::hash_runtime(name_.c_str()) };
+	this->SkinCount = this->champions_skins[name].size() - 1;//皮肤总数量
+	
 	for (auto ward_skin_id{ 1u };; ++ward_skin_id) {
 		const auto ward_display_name{ "game_character_skin_displayname_SightWard_" + std::to_string(ward_skin_id) };
 		const auto ward_display_name_translated{ cheatManager.memory->translateString(ward_display_name.c_str()) };
