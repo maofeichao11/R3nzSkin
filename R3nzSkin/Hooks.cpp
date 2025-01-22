@@ -44,51 +44,46 @@ static LRESULT WINAPI wndProc(const HWND window, const UINT msg, const WPARAM wP
 {
 	if (ImGui_ImplWin32_WndProcHandler(window, msg, wParam, lParam))
 		return true;
-
-	if (msg == WM_KEYDOWN) {
-		if (wParam == cheatManager.config->menuKey.getKey()) {
+	if (msg == WM_KEYDOWN)//键盘按下消息
+	{
+		if (wParam == 45)//cheatManager.config->menuKey.getKey()
 			cheatManager.gui->is_open = !cheatManager.gui->is_open;
-			if (!cheatManager.gui->is_open)
-				cheatManager.config->save();
-		} else if (wParam == 0x35) {
-			const auto player{ cheatManager.memory->localPlayer };
-			if (const auto player{ cheatManager.memory->localPlayer }; (::GetAsyncKeyState(VK_LCONTROL) & 0x8000) && player) {
-				const auto playerHash{ fnv::hash_runtime(player->get_character_data_stack()->base_skin.model.str) };
-				if (const auto it{ std::ranges::find_if(cheatManager.database->specialSkins,
-				    [&skin = player->get_character_data_stack()->base_skin.skin, &ph = playerHash](const SkinDatabase::specialSkin& x) noexcept -> bool
-				    {
-						return x.champHash == ph && (x.skinIdStart <= skin && x.skinIdEnd >= skin);
-				    })}; it != cheatManager.database->specialSkins.end())
-				{
-					const auto stack{ player->get_character_data_stack() };
-					if (stack->base_skin.gear < static_cast<std::int8_t>(it->gears.size()) - 1)
-						++stack->base_skin.gear;
-					else
-						stack->base_skin.gear = static_cast<std::int8_t>(0);
+		if (!cheatManager.gui->is_open)
+			cheatManager.config->save();
+		if (wParam == VK_NEXT || wParam == VK_F8)
+		{
+			i = i + 1;
 
-					stack->update(true);
-				}
+			int SkinCount = cheatManager.database->SkinCount;
+			if (i > SkinCount)
+			{
+				i = 0;
 			}
-		} else if (wParam == cheatManager.config->nextSkinKey.getKey() && cheatManager.config->quickSkinChange) {
-			if (const auto player{ cheatManager.memory->localPlayer }; player) {
-				const auto& values{ cheatManager.database->champions_skins[fnv::hash_runtime(player->get_character_data_stack()->base_skin.model.str)] };
-				if (++cheatManager.config->current_combo_skin_index > static_cast<std::int32_t>(values.size()))
-					cheatManager.config->current_combo_skin_index = static_cast<std::int32_t>(values.size());
-				if (cheatManager.config->current_combo_skin_index > 0)
-					player->change_skin(values[cheatManager.config->current_combo_skin_index - 1].model_name, values[cheatManager.config->current_combo_skin_index - 1].skin_id);
-				cheatManager.config->save();
+			const auto player1{ cheatManager.memory->localPlayer };
+			std::string name_ = player1->get_character_data_stack()->base_skin.model.str;
+
+			const auto& values{ cheatManager.database->champions_skins[fnv::hash_runtime(name_.c_str())] };
+			player1->change_skin(values[i].model_name, values[i].skin_id);
+
+			cheatManager.config->current_combo_skin_index = values[i].skin_id + 1;
+			cheatManager.config->save();
+		}
+		else if (wParam == VK_PRIOR || wParam == VK_F7)
+		{
+			i = i - 1;
+			const auto SkinCount = cheatManager.database->SkinCount;
+			if (i < 0)
+			{
+				i = SkinCount;
 			}
-		} else if (wParam == cheatManager.config->previousSkinKey.getKey() && cheatManager.config->quickSkinChange) {
-			if (const auto player{ cheatManager.memory->localPlayer }; player) {
-				const auto& values{ cheatManager.database->champions_skins[fnv::hash_runtime(player->get_character_data_stack()->base_skin.model.str)] };
-				if (--cheatManager.config->current_combo_skin_index > 0)
-					player->change_skin(values[cheatManager.config->current_combo_skin_index - 1].model_name, values[cheatManager.config->current_combo_skin_index - 1].skin_id);
-				else
-					cheatManager.config->current_combo_skin_index = 1;
-				cheatManager.config->save();
-			}
-		} else if (wParam == VK_F7) {
-			testFunc();
+			const auto player1{ cheatManager.memory->localPlayer };
+			std::string name_ = player1->get_character_data_stack()->base_skin.model.str;
+
+			const auto& values{ cheatManager.database->champions_skins[fnv::hash_runtime(name_.c_str())] };
+			player1->change_skin(values[i].model_name, values[i].skin_id);
+
+			cheatManager.config->current_combo_skin_index = values[i].skin_id + 1;
+			cheatManager.config->save();
 		}
 	}
 
