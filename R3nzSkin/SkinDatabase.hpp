@@ -35,7 +35,7 @@ public:
 
 	std::map<std::uint64_t, std::vector<skin_info>> champions_skins;
 	std::vector<std::pair<std::uint32_t, const char*>> wards_skins;
-	
+	int SkinCount;
 	std::vector<const char*> minions_skins{
 		"Minion", "Summer Minion",
 		"Project Minion", "Snowdown Minion",
